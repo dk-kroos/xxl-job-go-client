@@ -13,10 +13,10 @@ var esClient *EsClient
 const INDEX_KEY_PREFIX = "xxl-job-log-"
 
 type EsClient struct {
-	Server string //服务地址
-	AppId  string `json:"appId"` // 应用ID
-	Env    string `json:"env"`   // 运行环境
-	esCli  *elastic.Client
+	Servers []string //服务地址
+	AppId   string   `json:"appId"` // 应用ID
+	Env     string   `json:"env"`   // 运行环境
+	esCli   *elastic.Client
 }
 
 //往es写日志
@@ -24,6 +24,14 @@ func (e *EsClient) AddLog(logEs *LogEs) error {
 	if len(logEs.Contents) < 1 {
 		return errors.New("log is empty")
 	}
+	//如果ES没有初始化成功，再次尝试初始化ES
+	if e.esCli == nil {
+		errConn := e.Connect()
+		if errConn != nil {
+			return errConn
+		}
+	}
+
 	//组装index
 	key := INDEX_KEY_PREFIX + time.Now().Format("2006-01-02")
 	//组装新的map
@@ -50,6 +58,15 @@ func (e *EsClient) ReadLog(logId int64) ([]interface{}, error) {
 	if logId < 1 {
 		return nil, errors.New("logId is empty")
 	}
+
+	//如果ES没有初始化成功，再次尝试初始化ES
+	if e.esCli == nil {
+		errConn := e.Connect()
+		if errConn != nil {
+			return nil, errConn
+		}
+	}
+
 	//组装index
 	key := INDEX_KEY_PREFIX + time.Now().Format("2006-01-02")
 	//读取es
@@ -88,4 +105,17 @@ func (e *EsClient) ReadLog(logId int64) ([]interface{}, error) {
 		return nil, errors.New("log is empty")
 	}
 	return data, nil
+}
+
+//连接ES
+func (e *EsClient) Connect() error {
+	if len(e.Servers) < 1 {
+		return errors.New("es server is empty")
+	}
+	client, err := elastic.NewClient(elastic.SetSniff(false), elastic.SetURL(e.Servers...))
+	if client == nil || err != nil {
+		return err
+	}
+	e.esCli = client
+	return nil
 }

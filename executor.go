@@ -29,6 +29,10 @@ type Executor interface {
 	KillTask(writer http.ResponseWriter, request *http.Request)
 	// TaskLog 任务日志
 	TaskLog(writer http.ResponseWriter, request *http.Request)
+	// 心跳检测
+	Beat(writer http.ResponseWriter, request *http.Request)
+	//空闲检测
+	IdleBeat(writer http.ResponseWriter, request *http.Request)
 	// Run 运行服务
 	Run() error
 	// Stop 停止服务
@@ -338,4 +342,14 @@ func (e *executor) KillTask(writer http.ResponseWriter, request *http.Request) {
 // TaskLog 任务日志
 func (e *executor) TaskLog(writer http.ResponseWriter, request *http.Request) {
 	e.taskLog(writer, request)
+}
+
+// 心跳检测
+func (e *executor) Beat(writer http.ResponseWriter, request *http.Request) {
+	e.beat(writer, request)
+}
+
+// 空闲检测
+func (e *executor) IdleBeat(writer http.ResponseWriter, request *http.Request) {
+	e.idleBeat(writer, request)
 }

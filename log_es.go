@@ -2,7 +2,7 @@ package xxljob
 
 import (
 	"fmt"
-	"github.com/olivere/elastic/v7"
+	"strings"
 	"sync"
 	"time"
 )
@@ -52,12 +52,21 @@ func (l *LogEs) Flush() {
 }
 
 //初始化ES
-func (l *LogEs) InitEs(server string, appId string, env string) *LogEs {
+func (l *LogEs) InitEs(servers []string, appId string, env string) *LogEs {
+	for idx, server := range servers {
+		if !strings.Contains(server, "http") {
+			servers[idx] = "http://" + server
+		}
+	}
+
 	esClient = &EsClient{
-		Server: server,
+		Servers: servers,
 		AppId:  appId,
 		Env:    env,
 	}
-	esClient.esCli, _ = elastic.NewClient(elastic.SetSniff(false), elastic.SetURL(server))
+	err := esClient.Connect()
+	if err != nil {
+		panic(err)
+	}
 	return l
 }
