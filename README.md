@@ -2,8 +2,8 @@
 xxl-job 对应的golang客户端
 
 #### 提供Elasticsearch 日志组件，把job执行过程写入elasticsearch方便跟踪查询
-
-func main() {
+```
+ func main() {
     exec := xxl.NewExecutor(
     xxl.ServerAddr("http://192.168.1.50:8080/xxl-job-admin"),
     xxl.AccessToken(""), //请求令牌(默认为空)
@@ -21,3 +21,4 @@ func main() {
     exec.RegTask("task.panic", task.Panic)
     log.Fatal(exec.Run())
 }
+```
