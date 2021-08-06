@@ -48,7 +48,7 @@ func EsLogHandler(req *LogReq) *LogRes {
 		return res
 	}
 	//从ES查询日志
-	data, err := esClient.ReadLog(req.LogID)
+	data, err := esClient.ReadLog(req.LogID,req.LogDateTim)
 	if err != nil {
 		res = &LogRes{Code: 500, Msg: err.Error(), Content: LogResContent{
 			FromLineNum: req.FromLineNum,

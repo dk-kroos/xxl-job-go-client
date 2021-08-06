@@ -54,9 +54,17 @@ func (e *EsClient) AddLog(logEs *LogEs) error {
 }
 
 //从es读日志
-func (e *EsClient) ReadLog(logId int64) ([]interface{}, error) {
+// LogDateTime 到毫秒
+func (e *EsClient) ReadLog(logId int64, LogDateTime int64) ([]interface{}, error) {
 	if logId < 1 {
 		return nil, errors.New("logId is empty")
+	}
+	var dateTime string
+	if LogDateTime < 1000 {
+		dateTime = time.Now().Format("2006-01-02")
+	} else {
+		tm := time.Unix(LogDateTime/1000, 0)
+		dateTime = tm.Format("2006-01-02")
 	}
 
 	//如果ES没有初始化成功，再次尝试初始化ES
@@ -68,7 +76,7 @@ func (e *EsClient) ReadLog(logId int64) ([]interface{}, error) {
 	}
 
 	//组装index
-	key := INDEX_KEY_PREFIX + time.Now().Format("2006-01-02")
+	key := INDEX_KEY_PREFIX + dateTime
 	//读取es
 	esq := elastic.NewTermQuery("logId", logId)
 	searchRes, err := e.esCli.Search().
