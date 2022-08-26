@@ -1,4 +1,4 @@
-module github.com/dk-laosiji/xxl-job-go-client
+module github.com/dk-kroos/xxl-job-go-client
 
 go 1.14
 
